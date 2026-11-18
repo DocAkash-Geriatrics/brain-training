@@ -216,6 +216,7 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--bg2)}
 .btnrow.col button.wrong{background:var(--bad);border-color:var(--bad);color:var(--surface)}
 .sortgrid .cell.sel{background:var(--gs);border-color:var(--gc)}
 .week{flex-wrap:nowrap!important}.week span{flex:1 1 0;min-width:0}
+.novoice{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:50;display:flex;gap:10px;align-items:center;background:var(--fg);color:var(--bg);padding:12px 14px;border-radius:14px;font-size:15px;max-width:560px;margin:0 auto}
 :lang(hi) body{font-family:"Noto Sans Devanagari",var(--sans)}
 </style>
 <style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
@@ -843,12 +844,22 @@ function pickVoice(){
   var g = vs.filter(function(v){ return /google|natural|neural/i.test(v.name); }); return (g[0] || vs[0]);
 }
 function hasVoiceFor(){ if (!TTS) return false; if (!VOICES.length) loadVoices(); return !!pickVoice() || !VOICES.length; }
+var NOVOICE_SHOWN = false;
+function noVoiceNote(){
+  if (NOVOICE_SHOWN) return; NOVOICE_SHOWN = true;
+  var t = LANG === 'hi' ? 'इस डिवाइस में हिंदी आवाज़ इंस्टॉल नहीं है, इसलिए निर्देश सिर्फ़ स्क्रीन पर लिखे हैं। ज़्यादातर Android फ़ोन और iPhone पर हिंदी आवाज़ आती है।' : 'This device has no English voice installed, so instructions are shown on screen only.';
+  var n = h('div', {class:'novoice', role:'status', 'data-notr':'1'}, [h('span', {text:t})]);
+  var x = h('button', {type:'button', class:'ghost small', text:'OK'}); x.addEventListener('click', function(){ n.remove(); }); n.appendChild(x);
+  document.body.appendChild(n); setTimeout(function(){ if (n.parentNode) n.remove(); }, 12000);
+}
 function stopSpeech(){ try { if (TTS) TTS.cancel(); } catch(e){} }
 /* say(): speaks text in the current language; resolves when finished (or quickly if speech is unavailable). */
 function say(text, opts){
   opts = opts || {};
   return new Promise(function(res){
     if (!TTS || (!voiceOn() && !opts.force) || !text){ res(); return; }
+    if (!VOICES.length) loadVoices();
+    if (VOICES.length && !pickVoice()){ noVoiceNote(); res(); return; }
     var t = LANG === 'hi' ? tr(String(text)) : String(text);
     if (window.__said) window.__said.push(t);
     t = t.replace(/[★✓✗→·•]/g, ' ').replace(/\s+/g, ' ').trim();
