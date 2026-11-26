@@ -401,6 +401,46 @@ button:not(:disabled):hover{filter:brightness(1.07)}
 .land h1,.land h2,.land b{font-family:var(--display)}
 .land:lang(hi) h1,.land:lang(hi) h2,.land:lang(hi) b,.land:lang(hi) .rotline{font-family:"Noto Sans Devanagari",var(--sans)}
 .land:lang(hi) .hl{line-height:1.25;letter-spacing:0}
+/* ===== clinic plan: today panel, badges, clinician keys ===== */
+@media (max-width:700px){.hero .art{display:none}}
+.week span.half{background:var(--accent-soft);color:var(--accent)}
+.wklegend{font-size:14px}
+.todaybox{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center}
+@media (max-width:640px){.todaybox{grid-template-columns:minmax(0,1fr)}}
+.ringcol{display:flex;flex-direction:column;align-items:center;gap:6px}
+.ringbox{position:relative;width:150px;height:150px}
+.ringbox .ring{width:100%;height:100%}
+.ringv{transition:stroke-dasharray 1s ease}
+.ringtxt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringtxt b{font:700 40px/1 var(--display)}
+.ringtxt span{font-size:14px;color:var(--muted);font-weight:700}
+.ringmsg{font-weight:700;text-align:center;max-width:16ch}
+.taskcard{display:flex;gap:16px;align-items:center;padding:18px;border-radius:20px;background:linear-gradient(140deg,var(--gs),var(--surface) 80%);border:2px solid var(--gc);min-width:0}
+.taskcard .tico{width:72px;height:72px;flex:none;color:var(--gc)}
+.taskcard .tico svg{width:100%;height:100%}
+.taskcard .tbody{display:flex;flex-direction:column;gap:6px;min-width:0;align-items:flex-start}
+.taskcard h3{font-size:24px}
+.taskcard.done{border-style:dashed}
+.okline{color:var(--good);font-weight:700}
+.todayfoot{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:12px}
+.badge{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:700;background:var(--surface);color:var(--gc);border:1px solid var(--gc)}
+.badge.task{background:var(--gc);color:var(--surface)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.05em}
+.dombars{display:flex;flex-direction:column;gap:8px}
+.dombar{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) 70px;gap:10px;align-items:center}
+.dombar i,.prbar{display:block;height:12px;border-radius:6px;background:var(--bg2);overflow:hidden}
+.dombar em,.prbar em{display:block;height:100%;border-radius:6px}
+.prbar em{background:var(--gc)}
+@media (max-width:560px){.dombar{grid-template-columns:minmax(0,1fr) 60px}.dombar i{grid-column:1/-1;grid-row:2}}
+.prlist{display:flex;flex-direction:column;gap:10px}
+.prrow{display:grid;grid-template-columns:44px minmax(0,1.3fr) minmax(60px,1fr) 92px auto auto;gap:10px;align-items:center}
+.prrow .pri{width:40px;height:40px;color:var(--gc)}.prrow .pri svg{width:100%;height:100%}
+.prrow small{display:block;font-size:13px}
+.prpct{font-weight:700;font-size:14px;text-align:right}
+.prrow button{min-height:40px;min-width:44px;padding:4px 10px;font-size:20px}
+@media (max-width:640px){.prrow{grid-template-columns:40px minmax(0,1fr) auto auto}.prrow .prbar{grid-column:2/-1;grid-row:2}.prrow .prpct{grid-column:2;grid-row:3;text-align:left}}
+.bigcode{font:700 clamp(40px,9vw,64px)/1.1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;color:var(--accent)}
+.share{white-space:pre-wrap;background:var(--bg2);border-radius:14px;padding:14px;font:15px/1.5 var(--sans);margin:0}
 @media (prefers-reduced-motion:reduce){
   .ai *,.ai,.wrap>*,.land *,.confetti *,.hero{animation:none!important;transition:none!important}
   .rv,.step{opacity:1!important;transform:none!important}.sline{transform:none!important}
@@ -768,7 +808,7 @@ button:not(:disabled):hover{filter:brightness(1.07)}
 
 </script>
 <script>
-window.HI_DICT = {'Dark mode':'डार्क मोड', 'Light mode':'लाइट मोड', 
+window.HI_DICT = {"Your key from the clinic":"क्लिनिक से मिली कुंजी", "Your doctor or the person who shared this site gives you this key.":"यह कुंजी आपके डॉक्टर या यह साइट भेजने वाले व्यक्ति देते हैं।", "Please enter the key from your clinic.":"कृपया क्लिनिक से मिली कुंजी डालें।", "That key was not found. Please check it with your clinic.":"यह कुंजी नहीं मिली। कृपया क्लिनिक से जाँच लें।", "This key is no longer active. Please ask your clinic.":"यह कुंजी अब चालू नहीं है। कृपया क्लिनिक से पूछें।", "Could not check the key. Please check your internet connection.":"कुंजी जाँच नहीं हो सकी। कृपया इंटरनेट कनेक्शन देखें।", "Only the key, name and age are needed. Your mobile number is not used yet; daily reminders will be added later.":"सिर्फ़ कुंजी, नाम और उम्र ज़रूरी हैं। मोबाइल नंबर अभी इस्तेमाल नहीं होता; रोज़ के रिमाइंडर बाद में जोड़े जाएँगे।", "Please type the key from your clinic, then your name and age. Tick the box to agree, and press Let’s begin. A family member can help.":"कृपया क्लिनिक से मिली कुंजी लिखें, फिर अपना नाम और उम्र। सहमति के लिए बॉक्स पर टिक करें और चलिए शुरू करें दबाएँ। परिवार का कोई सदस्य मदद कर सकता है।", "Your clinic key":"आपकी क्लिनिक कुंजी", "Have a key from your clinic?":"क्लिनिक से कुंजी मिली है?", "Clinic key":"क्लिनिक कुंजी", "Filled: daily goal reached":"भरा हुआ: रोज़ का लक्ष्य पूरा", "Light: some practice":"हल्का: कुछ अभ्यास", "Today’s must-do":"आज का ज़रूरी काम", "★ Focus game":"★ ख़ास खेल", "Last 7 days":"पिछले 7 दिन", 'Dark mode':'डार्क मोड', 'Light mode':'लाइट मोड', 
 /* shell, navigation, profile */
 'Brain Training Studio':'ब्रेन ट्रेनिंग स्टूडियो','Home':'होम','My progress':'मेरी प्रगति','Personalise':'अपने हिसाब से','Organiser':'आयोजक','Organiser view':'आयोजक व्यू',
 '🔊 Voice on':'🔊 आवाज़ चालू','🔇 Voice off':'🔇 आवाज़ बंद','Listen again':'फिर से सुनें',
@@ -2403,10 +2443,10 @@ function chipText(){
 function renderChip(){ if (!syncChip) return; var t = chipText(); syncChip.className = 'chip '+t[0]; syncChip.textContent = t[1]; }
 function setSync(s){ SYNC.state = s; renderChip(); }
 function pid(){ var p = lsGet('bts2-pid', null); if (!p){ p = 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); lsSet('bts2-pid', p); } return p; }
-function stripRec(r){ var o = {}; ['sid','ts','date','key','modeId','mode','id','name','headline','detail','rows','m','lang','practice'].forEach(function(k){ if (r[k] !== undefined) o[k] = r[k]; }); return JSON.parse(JSON.stringify(o)); }
+function stripRec(r){ var o = {}; ['sid','ts','date','key','modeId','mode','id','name','headline','detail','rows','m','lang','practice','tod','code'].forEach(function(k){ if (r[k] !== undefined) o[k] = r[k]; }); return JSON.parse(JSON.stringify(o)); }
 function basePayload(type){
   var p = loadProfile() || {}, a = loadHist().filter(function(r){ return r.key !== 'm7'; });
-  return {type:type, player:pid(), profile:{lang:LANG||'', name:p.name||'', age:p.age||'', email:p.email||'', mobile:p.mobile||'', consentAt:p.consentAt||null}, rx:loadRx() || null, sessions:a.length, lastTs:a.length ? a[0].ts : null};
+  return {type:type, player:pid(), profile:{lang:LANG||'', name:p.name||'', age:p.age||'', email:p.email||'', mobile:p.mobile||'', consentAt:p.consentAt||null, code:(loadPlan()||{}).code||''}, rx:loadRx() || null, mins:recentMins(), sessions:a.length, lastTs:a.length ? a[0].ts : null};
 }
 async function post(payload){
   var j;
@@ -2447,7 +2487,7 @@ function header(){
   syncChip = h('span', {class:'chip'}); renderChip();
   var nav = h('div', {class:'nav'});
   function nb(label, fn, ghost){ var b = h('button', {type:'button', class:'small'+(ghost ? ' ghost' : ''), text:label}); b.addEventListener('click', fn); nav.appendChild(b); }
-  nb('Home', showHub, true); nb('My progress', showProgress, true); nb('Personalise', showPersonalise, true);
+  nb('Home', showHub, true); nb('My progress', showProgress, true);
   var lb = h('button', {type:'button', class:'small ghost', 'data-notr':'1', text: LANG === 'hi' ? 'English' : 'हिंदी'}); lb.addEventListener('click', function(){ stopSpeech(); setLang(LANG === 'hi' ? 'en' : 'hi'); syncPlayer(); route(); }); nav.appendChild(lb);
   var vb = h('button', {type:'button', class:'small ghost', 'aria-pressed': String(voiceOn()), text: voiceOn() ? '🔊 Voice on' : '🔇 Voice off'}); vb.addEventListener('click', function(){ setVoiceOn(!voiceOn()); vb.textContent = voiceOn() ? '🔊 Voice on' : '🔇 Voice off'; vb.setAttribute('aria-pressed', String(voiceOn())); }); nav.appendChild(vb); nav.appendChild(themeBtn());
   if (SYNC.owner) nb('Organiser view', showAdmin);
@@ -2469,6 +2509,9 @@ function showProfile(editing){
     p.appendChild(h('div', {style:{display:'flex', flexDirection:'column', gap:'6px'}}, [h('label', {for:'pf_'+id, style:{fontWeight:'700'}, text:label+(req ? '' : ' (optional)')}), inp, err]));
     return {inp:inp, err:err};
   }
+  var needKey = !editing && !!SHEET_URL && !loadPlan();
+  var fk = needKey ? field('key','Your key from the clinic','text','e.g. ABCD-2345', (typeof URL_KEY === 'string' && URL_KEY) ? fmtCode(URL_KEY) : '', true) : null;
+  if (fk){ fk.inp.setAttribute('autocapitalize','characters'); fk.inp.setAttribute('spellcheck','false'); fk.inp.setAttribute('data-notr','1'); p.appendChild(h('p', {class:'muted', style:{marginTop:'-4px'}, text:'Your doctor or the person who shared this site gives you this key.'})); }
   var fn = field('name','Your name (a nickname is fine)','text','e.g. Asha', cur.name, true);
   var fa = field('age','Your age','text','e.g. 68', cur.age, true, 'numeric');
   var fe = field('email','Email','email','name@example.com', cur.email, false, 'email');
@@ -2478,8 +2521,9 @@ function showProfile(editing){
   p.appendChild(h('label', {for:'pf_consent', style:{display:'flex', gap:'12px', alignItems:'flex-start'}}, [cb, h('span', {text:'I agree that my details and game results are saved on this device and sent to the organiser who shared this site, who keeps them in a private spreadsheet to follow everyone’s progress. Other players cannot see my data.'})]));
   p.appendChild(cerr);
   var go = h('button', {type:'button', text: editing ? 'Save' : 'Let’s begin'});
-  go.addEventListener('click', function(){
-    var ok = true; [fn,fa,fe,fm].forEach(function(f){ f.err.textContent = ''; }); cerr.textContent = '';
+  go.addEventListener('click', async function(){
+    var ok = true; [fn,fa,fe,fm].concat(fk ? [fk] : []).forEach(function(f){ f.err.textContent = ''; }); cerr.textContent = '';
+    if (fk && !fk.inp.value.trim()){ fk.err.textContent = tr('Please enter the key from your clinic.'); ok = false; }
     var name = fn.inp.value.trim(), age = fa.inp.value.trim(), email = fe.inp.value.trim(), mobile = fm.inp.value.trim();
     if (!name){ fn.err.textContent = 'Please enter a name.'; ok = false; }
     if (!/^\d{2,3}$/.test(age) || +age < 18 || +age > 110){ fa.err.textContent = 'Please enter your age in years (18 to 110).'; ok = false; }
@@ -2487,14 +2531,16 @@ function showProfile(editing){
     if (mobile && !/^\+?[\d\s-]{7,16}$/.test(mobile)){ fm.err.textContent = 'That mobile number does not look right.'; ok = false; }
     if (!cb.checked){ cerr.textContent = 'Please tick to continue.'; ok = false; }
     if (!ok) return;
-    lsSet(KEYS.prof, {name:name, age:+age, email:email, mobile:mobile, lang:LANG, consentAt: cur.consentAt || Date.now()});
+    var code = cur.code || '';
+    if (fk){ go.disabled = true; try { var np = await fetchPlan(fk.inp.value); savePlan(np); code = np.code; } catch(e){ fk.err.textContent = keyError(e); go.disabled = false; fk.inp.focus(); return; } }
+    lsSet(KEYS.prof, {name:name, age:+age, email:email, mobile:mobile, lang:LANG, consentAt: cur.consentAt || Date.now(), code:code});
     syncPlayer(); route();
   });
   var row = h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}, [go]);
   if (editing){ var cx = h('button', {type:'button', class:'ghost', text:'Cancel'}); cx.addEventListener('click', showHub); row.appendChild(cx); }
   p.appendChild(row);
-  p.appendChild(h('p', {class:'muted', text:'Only name and age are needed. Email and mobile are not used to contact you by this app.'}));
-  if (!editing) p.insertBefore(speakBtn('Please write your name and age, tick the box to agree, and press Let’s begin. A family member can help.'), p.firstChild);
+  p.appendChild(h('p', {class:'muted', text:'Only the key, name and age are needed. Your mobile number is not used yet; daily reminders will be added later.'}));
+  if (!editing) p.insertBefore(speakBtn(needKey ? 'Please type the key from your clinic, then your name and age. Tick the box to agree, and press Let’s begin. A family member can help.' : 'Please write your name and age, tick the box to agree, and press Let’s begin. A family member can help.'), p.firstChild);
 }
 
 /* ===== prescription ===== */
@@ -2521,35 +2567,21 @@ function suggestGame(hist){
 }
 function showHub(){
   page('hub');
-  var prof = loadProfile(), hist = loadHist(), rx = loadRx(), now = Date.now(), today = dayStart(now);
-  /* week strip */
-  var wk = h('div', {class:'week', 'aria-label':'Days played this week'}), days = {};
+  var prof = loadProfile(), hist = loadHist(), now = Date.now(), today = dayStart(now);
+  /* week strip: filled = daily minutes goal reached, half = some practice */
+  var target = planTarget(), mm = loadMins();
+  var wk = h('div', {class:'week', 'aria-label':'Last 7 days'}), days = {};
   hist.forEach(function(r){ days[dayStart(r.ts)] = 1; });
-  for (var i=6;i>=0;i--){ var d = today - i*DAY, dt = new Date(d); wk.appendChild(h('span', {class:(days[d] ? 'on' : '')+(i === 0 ? ' now' : ''), title:fmtDate(d)}, [dt.toLocaleDateString(LANG === 'hi' ? 'hi-IN' : undefined, {weekday:'short'}).slice(0, LANG === 'hi' ? 3 : 2), h('br'), String(dt.getDate())])); }
-  var playedDays = Object.keys(days).filter(function(d){ return +d > today - 7*DAY; }).length;
-  /* next game */
-  var nextKey = null, nextLabel = '', sub = '';
-  if (rx){
-    var wkIdx = Math.floor((today - rx.start)/(7*DAY));
-    if (wkIdx >= 0 && wkIdx < rx.w){
-      var w0 = rx.start + wkIdx*7*DAY, counts = {};
-      hist.forEach(function(r){ if (r.ts >= w0 && r.ts < w0+7*DAY) counts[r.key] = (counts[r.key]||0)+1; });
-      planBlocks(rx).forEach(function(b){ if (counts[b.m] > 0) counts[b.m]--; else if (!nextKey) nextKey = b.m; });
-      sub = nextKey ? 'Next in your plan' : 'This week’s plan is done. Free play below.';
-    }
-  }
-  if (!nextKey && !rx){ nextKey = suggestGame(hist); sub = 'Suggested for today'; }
-  var heroBtns = h('div', {class:'btnrow', style:{justifyContent:'flex-start'}});
-  if (nextKey){ var nb = h('button', {type:'button', text: GAMES[nextKey].name+' →'}); nb.addEventListener('click', function(){ openGame(nextKey); }); heroBtns.appendChild(nb); }
-  var ab = h('button', {type:'button', class:'ghost', text:'Daily anchors'}); ab.addEventListener('click', showM7); heroBtns.appendChild(ab);
+  var goalDays = 0;
+  for (var i=6;i>=0;i--){ var d = today - i*DAY, dt = new Date(d), mn = Math.floor((mm[isoDay(d)]||0)/60), full = mn >= target; if (full) goalDays++;
+    wk.appendChild(h('span', {class:(full ? 'on' : (days[d] || mn) ? 'half' : '')+(i === 0 ? ' now' : ''), title:fmtDate(d)+' · '+mn+' min'}, [dt.toLocaleDateString(LANG === 'hi' ? 'hi-IN' : undefined, {weekday:'short'}).slice(0, LANG === 'hi' ? 3 : 2), h('br'), String(dt.getDate())])); }
   app.appendChild(h('div', {class:'hero'}, [
     h('div', {style:{display:'flex', flexDirection:'column', gap:'14px'}}, [
       h('span', {class:'eyebrow', text: greeting()}), h('h1', {text: prof ? prof.name + ', ready for a session?' : 'Ready for a session?'}),
-      h('p', {class:'lead', text: playedDays ? 'You have practised on '+playedDays+' of the last 7 days. About 3 sessions a week is a good rhythm.' : 'About 3 short sessions a week is a good rhythm. Start with any game, or the one suggested.'}),
-      wk, h('p', {class:'muted', text: sub}), heroBtns]),
+      h('p', {class:'lead', text: goalDays ? L('You reached your daily goal on '+goalDays+' of the last 7 days.', 'पिछले 7 में से '+goalDays+' दिन आपने रोज़ का लक्ष्य पूरा किया।') : L('Aim for at least '+target+' minutes every day. Start with today’s must-do task.', 'रोज़ कम से कम '+target+' मिनट का लक्ष्य रखें। आज के ज़रूरी काम से शुरू करें।')}),
+      wk, h('p', {class:'muted wklegend', text:'Filled: daily goal reached · Light: some practice'})]),
     h('div', {class:'art', html:ICON.hero})]));
-  /* prescription panel */
-  if (rx) app.appendChild(rxPanel(rx, hist));
+  app.appendChild(todayPanel(hist));
   /* games */
   app.appendChild(h('h2', {text:'Games'}));
   var grid = h('div', {class:'games'});
@@ -2557,16 +2589,15 @@ function showHub(){
   GAME_KEYS.concat(['m7']).forEach(function(k){
     var g = GAMES[k], card = setVars(h('div', {class:'gcard'}), k);
     var b = h('button', {type:'button', text: k === 'm7' ? 'Open' : 'Play'}); b.addEventListener('click', function(){ if (k === 'm7') showM7(); else openGame(k); });
-    card.append(h('div', {class:'top'}, [h('div', null, [h('span', {class:'tag', text:g.id+' · '+g.mins.toUpperCase()}), h('h3', {text:g.name, style:{marginTop:'6px'}})]), h('span', {html:ICON[k], style:{color:'var(--gc)'}})]),
+    var fg = focusGames(), isTask = k === todayTask();
+    card.append(h('div', {class:'top'}, [h('div', null, [h('span', {class:'tag', text:g.id+' · '+g.mins.toUpperCase()}), h('h3', {text:g.name, style:{marginTop:'6px'}}), isTask ? h('span', {class:'badge task', text:'Today’s must-do'}) : fg[k] ? h('span', {class:'badge', text:'★ Focus game'}) : null]), h('span', {html:ICON[k], style:{color:'var(--gc)'}})]),
       h('div', {class:'body'}, [h('p', {text:g.trains}), k !== 'm7' ? h('p', {class:'modes', text:modesFor(k).length+' ways to play: '+modesFor(k).map(function(m){ return tr(m[1]); }).join(', ')}) : h('p', {class:'modes', text:'Routines checklist, 5 strategy lessons and an everyday challenge'}), lastBy[k] ? h('p', {class:'done', text:'Last: '+fmtDate(lastBy[k].ts)+' · '+lastBy[k].headline}) : null, b]));
     grid.appendChild(card);
   });
   app.appendChild(grid);
-  /* details + code */
-  var inp = h('input', {type:'text', 'aria-label':'Prescription code', placeholder:'RX-M1-M2-F3-W12', autocomplete:'off', autocapitalize:'characters', spellcheck:'false'}), ap = h('button', {type:'button', class:'ghost', text:'Apply'}), st = h('p', {class:'err'});
-  ap.addEventListener('click', function(){ var r = parseRx(inp.value); if (r){ saveRx(r); showHub(); } else st.textContent = 'That code was not recognised.'; });
+  /* clinic key + details */
   var ed = h('button', {type:'button', class:'ghost small', text:'Edit my details'}); ed.addEventListener('click', function(){ showProfile(true); });
-  app.appendChild(h('div', {class:'panel'}, [h('h3', {text:'Have a code from your doctor?'}), h('div', {class:'rowin'}, [inp, ap]), st, h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}, [ed])]));
+  app.appendChild(h('div', {class:'panel'}, keyPanel().concat([h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}, [ed])])));
   footer();
 }
 function rxPanel(rx, hist){
@@ -2660,7 +2691,7 @@ function startGame(k, mode, practice){
   g.play(holder, ctx, mode[0]).then(function(res){
     if (tok !== run) return;
     if (practice){ markPracticed(k, mode); return showPracticeDone(k, mode); }
-    var rec = {sid:newSid(), ts:Date.now(), date:isoDay(Date.now()), key:k, modeId:mode[0], mode:mode[1], id:g.id, name:g.name, headline:res.headline, detail:res.detail, rows:res.rows, m:res.m, lang:LANG || 'en'};
+    var rec = {sid:newSid(), ts:Date.now(), date:isoDay(Date.now()), key:k, modeId:mode[0], mode:mode[1], id:g.id, name:g.name, headline:res.headline, detail:res.detail, rows:res.rows, m:res.m, lang:LANG || 'en', tod: k === todayTask(), code:(loadPlan()||{}).code||''};
     upsertRecord(rec);
     showResults(k, mode, res);
   });
@@ -2872,6 +2903,7 @@ async function loadAll(){
   var j;
   if (GAS) j = await gasCall('getAll', key);
   else { var r = await fetch(SHEET_URL + (SHEET_URL.indexOf('?') >= 0 ? '&' : '?') + 'key=' + encodeURIComponent(key)); j = await r.json(); } if (!j.ok) { var e = new Error(j.error || 'denied'); e.code = j.error; throw e; }
+  ADMIN.plans = j.plans || [];
   var by = {}; (j.players || []).forEach(function(p){ by[p.id] = {id:p.id, p:p, recs:[]}; });
   (j.sessions || []).forEach(function(s){ if (!by[s.player]) by[s.player] = {id:s.player, p:{name:''}, recs:[]}; by[s.player].recs.push(s); });
   var out = Object.keys(by).map(function(k){ var x = by[k]; x.recs.sort(function(a,b){ return b.ts-a.ts; }); return x; });
@@ -2906,6 +2938,8 @@ async function showAdmin(){
   page('admin');
   app.appendChild(h('div', null, [h('span', {class:'eyebrow', text:'Organiser view'}), h('h1', {text:'Everyone’s progress'})]));
   if (!SYNC.owner){ showOrgLogin(); return; }
+  var kb = h('button', {type:'button', text:'🔑 Patient keys: enter MoCA / CANTAB'}); kb.addEventListener('click', showKeys);
+  app.appendChild(h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}, [kb]));
   var status = h('p', {class:'muted', text:'Loading…'}); app.appendChild(status);
   var tok = run, players;
   try { players = await loadAll(); } catch(e){ if (tok !== run) return; status.textContent = e.code === 'key' ? 'The organiser key was not accepted.' : 'Could not load the results sheet.'; if (e.code === 'key'){ lsSet('bts2-orgkey', null); SYNC.owner = false; } return; }
@@ -2916,11 +2950,11 @@ async function showAdmin(){
   var tb = h('tbody');
   players.forEach(function(pl){
     var games = pl.recs.filter(function(r){ return r.key !== 'm7'; }), wk = pl.recs.filter(function(r){ return r.ts > wkAgo; }).length;
-    var tr = h('tr', {class:'click', tabindex:'0'}, [h('td', null, [h('b', {text:pl.p.name || '(no name)'}), h('br'), h('span', {class:'muted', text:(pl.p.age ? pl.p.age+' y' : '')})]), h('td', {class:'muted', text:[pl.p.email, pl.p.mobile].filter(Boolean).join(' · ') || '–'}), h('td', {text:String(games.length)}), h('td', {text:String(wk)}), h('td', {text: pl.recs[0] ? fmtDate(pl.recs[0].ts) : '–'}), h('td', {text: pl.p.rx && pl.p.rx.mods ? pl.p.rx.mods.map(function(m){ return m.toUpperCase(); }).join(' ') : '–'})]);
+    var tr = h('tr', {class:'click', tabindex:'0'}, [h('td', null, [h('b', {text:pl.p.name || '(no name)'}), h('br'), h('span', {class:'muted', text:(pl.p.age ? pl.p.age+' y' : '')})]), h('td', {class:'muted', text:[pl.p.email, pl.p.mobile].filter(Boolean).join(' · ') || '–'}), h('td', {text:String(games.length)}), h('td', {text:String(wk)}), h('td', {text: pl.recs[0] ? fmtDate(pl.recs[0].ts) : '–'}), h('td', {class:'code', text: pl.p.code ? fmtCode(pl.p.code) : '–'}), h('td', {text: avgMins(pl.p.mins)}), h('td', {text: todDays(pl.recs)+'/7'})]);
     function go(){ showPlayer(pl); } tr.addEventListener('click', go); tr.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
     tb.appendChild(tr);
   });
-  var tbl = h('div', {class:'panel'}, [h('h3', {text:'Players'}), h('p', {class:'muted', text:'Tap a row to see that person’s charts. The same data is in your Google Sheet.'}), h('div', {class:'tw'}, [h('table', null, [h('thead', null, [h('tr', null, ['Player','Contact','Games','This week','Last active','Plan'].map(function(t){ return h('th', {text:t}); }))]), tb])])]);
+  var tbl = h('div', {class:'panel'}, [h('h3', {text:'Players'}), h('p', {class:'muted', text:'Tap a row to see that person’s charts. The same data is in your Google Sheet.'}), h('div', {class:'tw'}, [h('table', null, [h('thead', null, [h('tr', null, ['Player','Contact','Games','This week','Last active','Key','Min/day (7 d)','Must-do done (7 d)'].map(function(t){ return h('th', {text:t}); }))]), tb])])]);
   if (!players.length) tbl.appendChild(h('p', {text:'No results yet.'}));
   app.appendChild(tbl);
   var row = h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}), msg = h('p', {class:'muted'});
@@ -2931,11 +2965,16 @@ async function showAdmin(){
   row.append(dl, rf, lo); app.append(row, msg); footer();
 }
 
+function avgMins(m){ if (!m) return '–'; var t = 0, now = Date.now(); for (var i=0;i<7;i++) t += +(m[isoDay(now - i*DAY)] || 0); return t ? String(Math.round(t/7)) : '0'; }
+function todDays(recs){ var now = Date.now(), d = {}; recs.forEach(function(r){ if (r.tod && r.ts > now - 7*DAY) d[r.date] = 1; }); return Object.keys(d).length; }
 function showPlayer(pl){
   page('admin');
   var back = h('button', {type:'button', class:'ghost small', text:'← All players'}); back.addEventListener('click', showAdmin);
   app.appendChild(back);
-  app.appendChild(h('div', null, [h('span', {class:'eyebrow', text:'Player'}), h('h1', {text:pl.p.name || '(no name)'}), h('p', {class:'muted', text:[pl.p.age ? 'Age '+pl.p.age : '', pl.p.email, pl.p.mobile, pl.p.consentAt ? 'Joined '+fmtDate(pl.p.consentAt) : ''].filter(Boolean).join(' · ')})]));
+  app.appendChild(h('div', null, [h('span', {class:'eyebrow', text:'Player'}), h('h1', {text:pl.p.name || '(no name)'}), h('p', {class:'muted', text:[pl.p.age ? 'Age '+pl.p.age : '', pl.p.email, pl.p.mobile, pl.p.consentAt ? 'Joined '+fmtDate(pl.p.consentAt) : '', pl.p.code ? 'Key '+fmtCode(pl.p.code) : ''].filter(Boolean).join(' · ')})]));
+  if (pl.p.mins){ var mr = h('div', {class:'week'}), tg = 15; (ADMIN.plans||[]).forEach(function(x){ if (x.code === pl.p.code) tg = x.minutes || 15; });
+    for (var i=13;i>=0;i--){ var d = Date.now() - i*DAY, mn = +(pl.p.mins[isoDay(d)] || 0); mr.appendChild(h('span', {class: mn >= tg ? 'on' : mn ? 'half' : '', title:fmtDate(d)}, [String(new Date(d).getDate()), h('br'), mn+'′'])); }
+    app.appendChild(h('div', {class:'panel'}, [h('h3', {text:'Minutes played, last 14 days (goal '+tg+')'}), mr])); }
   var holder = h('div', {style:{display:'flex', flexDirection:'column', gap:'16px'}}); app.appendChild(holder);
   renderProgress(holder, pl.recs, pl.p.rx || null); footer();
 }
@@ -3019,14 +3058,339 @@ function route(){
   if (!LANG || !loadProfile()){ showLanding(); return; }
   if (k.indexOf('rx-') === 0){ var r = parseRx(k); if (r) saveRx(r); try { history.replaceState(null, '', location.pathname + location.search); } catch(e){} showHub(); }
   else if (k === 'progress') showProgress();
-  else if (k === 'personalise') showPersonalise();
+  else if (k === 'personalise') showHub();
+  else if (k === 'keys') { if (SYNC.owner) showKeys(); else showOrgLogin(); }
   else if (k === 'organiser') { if (SYNC.owner) showAdmin(); else showOrgLogin(); }
   else if (GAMES[k]) openGame(k);
   else showHub();
 }
+
+
+/* ===== clinic plans: patient keys, domain priorities, task of the day, daily minutes ===== */
+KEYS.plan = 'bts2-plan'; KEYS.mins = 'bts2-mins';
+
+/* cognitive domains used for prioritising games */
+var DOMS = [
+  ['memory',      'Memory',              'याददाश्त'],
+  ['attention',   'Attention',           'ध्यान'],
+  ['speed',       'Processing speed',    'सोचने की तेज़ी'],
+  ['working',     'Working memory',      'कार्यशील स्मृति'],
+  ['executive',   'Planning and flexibility', 'योजना और लचीलापन'],
+  ['visuospatial','Shapes and space',    'आकार और दिशा'],
+  ['language',    'Words and language',  'शब्द और भाषा'],
+  ['daily',       'Orientation and daily tasks', 'समय-स्थान और रोज़ के काम']
+];
+var DOM_LABEL = {}; DOMS.forEach(function(d){ DOM_LABEL[d[0]] = d; });
+function domName(k){ var d = DOM_LABEL[k]; return d ? L(d[1], d[2]) : k; }
+/* which domains each game trains (weight of contribution) */
+var GAME_DOMS = {
+  m1:[['speed',1],['attention',.8]],
+  m2:[['memory',1]],
+  m3:[['working',1],['attention',.5]],
+  m4:[['executive',1],['attention',.5]],
+  m5:[['visuospatial',1],['executive',.3]],
+  m6:[['language',1]],
+  m8:[['daily',1],['executive',.5],['memory',.5]]
+};
+/* MoCA subsections → domains (max points, contributions) */
+var MOCA_MAP = [
+  ['vse','Visuospatial / executive (cube, clock, trails)',5,[['visuospatial',1],['executive',.6]]],
+  ['naming','Naming',3,[['language',1]]],
+  ['attention','Attention (digits, letters, serial 7s)',6,[['attention',1],['working',.8]]],
+  ['language','Language (repetition, fluency)',3,[['language',1]]],
+  ['abstraction','Abstraction',2,[['executive',1]]],
+  ['recall','Delayed recall',5,[['memory',1]]],
+  ['orientation','Orientation',6,[['daily',1]]]
+];
+/* CANTAB report measures (percentiles) → domains */
+var CAN_MAP = [
+  ['pal','Episodic memory (PAL)','memory'],
+  ['swm_err','Working memory (SWM)','working'],
+  ['swm_strat','Executive function (SWM strategy)','executive'],
+  ['mts_speed','Processing speed (MTS)','speed'],
+  ['mts_att','Attention (MTS)','attention']
+];
+function pctDeficit(p){ return p <= 5 ? 1 : p <= 16 ? .75 : p <= 25 ? .5 : p <= 50 ? .2 : 0; }
+/* deficits 0 (fine) .. 1 (marked), taking the worse of MoCA and CANTAB for each domain */
+function domainDeficits(moca, cantab){
+  var def = {}, src = {}; DOMS.forEach(function(d){ def[d[0]] = null; src[d[0]] = []; });
+  function add(dom, v, why){ if (def[dom] == null || v > def[dom]) def[dom] = v; src[dom].push(why); }
+  MOCA_MAP.forEach(function(m){ var s = moca && moca[m[0]]; if (s == null || isNaN(s)) return; var d = Math.max(0, Math.min(1, 1 - s/m[2]));
+    m[3].forEach(function(c){ add(c[0], d*c[1], 'MoCA '+m[1].split(' (')[0]+' '+s+'/'+m[2]); }); });
+  CAN_MAP.forEach(function(c){ var p = cantab && cantab[c[0]]; if (p == null || isNaN(p)) return; add(c[2], pctDeficit(p), 'CANTAB '+c[1]+' '+p+'th percentile'); });
+  return {def:def, src:src};
+}
+function autoWeights(def){
+  var w = {};
+  Object.keys(GAME_DOMS).forEach(function(k){ var s = 0; GAME_DOMS[k].forEach(function(c){ var d = def[c[0]]; if (d != null) s = Math.max(s, d*c[1]); }); w[k] = Math.round((1 + 4*s)*2)/2; });
+  return w;
+}
+function focusOf(def){ return DOMS.map(function(d){ return d[0]; }).filter(function(k){ return def[k] != null && def[k] >= .35; }).sort(function(a,b){ return def[b]-def[a]; }); }
+
+/* ===== the patient's plan on this device ===== */
+function loadPlan(){ var p = lsGet(KEYS.plan, null); return p && p.code ? p : null; }
+function savePlan(p){ lsSet(KEYS.plan, p); }
+function fmtCode(c){ c = String(c||''); return c.length === 8 ? c.slice(0,4)+'-'+c.slice(4) : c; }
+function normCode(c){ return String(c||'').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+async function fetchPlan(code){
+  code = normCode(code);
+  if (!/^[A-Z0-9]{4,16}$/.test(code)){ var e0 = new Error('unknown'); e0.code = 'unknown'; throw e0; }
+  var j;
+  if (GAS) j = await gasCall('getPlan', code);
+  else { var r = await fetch(SHEET_URL + (SHEET_URL.indexOf('?') >= 0 ? '&' : '?') + 'plan=' + encodeURIComponent(code)); j = await r.json(); }
+  if (!j || !j.ok || !j.plan){ var e = new Error(j && j.error || 'unknown'); e.code = j && j.error || (j && j.ok ? 'server' : 'unknown'); throw e; }
+  return j.plan;
+}
+/* refresh the plan quietly when the app opens, so the clinician's changes reach the patient */
+function refreshPlan(){
+  var p = loadPlan(); if (!p || !SHEET_URL) return;
+  fetchPlan(p.code).then(function(np){ var changed = JSON.stringify(np) !== JSON.stringify(p); savePlan(np); if (changed && currentView === 'hub') showHub(); })
+    .catch(function(e){ if (e.code === 'inactive' || e.code === 'unknown'){ p.inactive = true; savePlan(p); } });
+}
+function planTarget(){ var p = loadPlan(); return p && p.minutes ? p.minutes : 15; }
+
+/* ===== task of the day: weighted by the plan, steady for the whole day, never the same game two days running ===== */
+function hashStr(s){ var x = 2166136261; for (var i=0;i<s.length;i++){ x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); }
+  x ^= x >>> 16; x = Math.imul(x, 0x85ebca6b); x ^= x >>> 13; x = Math.imul(x, 0xc2b2ae35); x ^= x >>> 16; return (x >>> 0) / 4294967296; }
+function rawTask(seed, day, weights, exclude){
+  var keys = GAME_KEYS.filter(function(k){ return k !== exclude && (weights[k] == null ? 1 : weights[k]) > 0; });
+  if (!keys.length) keys = GAME_KEYS.slice();
+  var tot = keys.reduce(function(s,k){ return s + (weights[k] == null ? 1 : weights[k]); }, 0), r = hashStr(seed+'|'+day) * tot;
+  for (var i=0;i<keys.length;i++){ r -= (weights[keys[i]] == null ? 1 : weights[keys[i]]); if (r < 0) return keys[i]; }
+  return keys[keys.length-1];
+}
+function taskFor(ms){
+  /* walk forward from a fixed point 21 days back, so yesterday's real task is always the one excluded */
+  var p = loadPlan(), w = p && p.weights || {}, seed = p ? p.code : pid(), prev = null;
+  for (var i=21;i>=0;i--) prev = rawTask(seed, isoDay(ms - i*DAY), w, prev);
+  return prev;
+}
+function todayTask(){ return taskFor(Date.now()); }
+function taskDone(hist, k, day){ return hist.some(function(r){ return r.key === k && r.date === day && !r.practice; }); }
+
+/* ===== active minutes: counted only while a game or Daily Anchors is on screen ===== */
+var ACTIVE_VIEWS = {play:1, m7:1};
+function loadMins(){ return lsGet(KEYS.mins, {}); }
+function minsOn(day){ return Math.floor((loadMins()[day] || 0)/60); }
+(function(){
+  var last = Date.now();
+  setInterval(function(){
+    var now = Date.now(), gap = Math.min(now - last, 10000); last = now;
+    if (!ACTIVE_VIEWS[currentView] || document.hidden) return;
+    var m = loadMins(), d = isoDay(now); m[d] = (m[d] || 0) + gap/1000;
+    var keys = Object.keys(m).sort(); while (keys.length > 60) delete m[keys.shift()];
+    lsSet(KEYS.mins, m);
+    if (Math.floor(m[d]/60) !== Math.floor((m[d] - gap/1000)/60)) syncPlayer();
+  }, 5000);
+})();
+function recentMins(){ var m = loadMins(), o = {}; Object.keys(m).sort().slice(-30).forEach(function(d){ o[d] = Math.round(m[d]/60); }); return o; }
+
+/* ===== hub: today panel ===== */
+function ringSvg(frac){
+  var r = 52, c = 2*Math.PI*r, f = Math.max(0, Math.min(1, frac));
+  return '<svg viewBox="0 0 120 120" class="ring" aria-hidden="true"><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="12"/><circle class="ringv" cx="60" cy="60" r="'+r+'" fill="none" stroke="'+(f >= 1 ? 'var(--good)' : 'var(--accent)')+'" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+(c*f).toFixed(1)+' '+c.toFixed(1)+'" transform="rotate(-90 60 60)"/></svg>';
+}
+function todayPanel(hist){
+  var plan = loadPlan(), day = isoDay(Date.now()), k = todayTask(), done = taskDone(hist, k, day), mins = minsOn(day), target = planTarget();
+  var g = GAMES[k];
+  var ring = h('div', {class:'ringbox'}, [h('span', {html:ringSvg(mins/target)}), h('div', {class:'ringtxt'}, [h('b', {text:String(Math.min(mins, 999))}), h('span', {text:L('of '+target+' min','/ '+target+' मिनट')})])]);
+  var ringMsg = mins >= target ? L('Daily goal reached. Well done!','आज का लक्ष्य पूरा। शाबाश!') : L((target - mins)+' more minutes today', 'आज '+(target - mins)+' मिनट और');
+  var tcard = setVars(h('div', {class:'taskcard'+(done ? ' done' : '')}), k);
+  var btn = h('button', {type:'button', text: done ? L('Play it again','फिर से खेलें') : L('Start today’s task →','आज का काम शुरू करें →')});
+  btn.addEventListener('click', function(){ openGame(k); });
+  tcard.append(h('span', {class:'tico', html:ICON[k]}), h('div', {class:'tbody'}, [
+    h('span', {class:'eyebrow', text: L('Today’s must-do task','आज का ज़रूरी काम')}),
+    h('h3', {text: trWord(g.name)}), h('p', {class:'muted', text: tr(g.trains)+' · '+g.mins}),
+    done ? h('p', {class:'okline', text:L('✓ Done for today','✓ आज का पूरा हुआ')}) : null, btn]));
+  var p = h('div', {class:'panel todaybox'}, [
+    h('div', {class:'ringcol'}, [ring, h('p', {class:'ringmsg', text: ringMsg})]), tcard]);
+  var foot = h('div', {class:'todayfoot'});
+  if (plan && plan.focus && plan.focus.length) foot.appendChild(h('p', null, [h('b', {text:L('Your plan gives extra practice in: ','आपके प्लान में ज़्यादा अभ्यास: ')}), plan.focus.slice(0,3).map(domName).join(' · ')]));
+  foot.appendChild(h('p', {class:'muted', text:L('After the must-do task, play any game you like. Aim for at least '+target+' minutes a day.','ज़रूरी काम के बाद कोई भी खेल खेलें। रोज़ कम से कम '+target+' मिनट का लक्ष्य रखें।')}));
+  p.appendChild(foot);
+  return p;
+}
+function focusGames(){ var p = loadPlan(); if (!p || !p.weights) return {}; var o = {}; Object.keys(p.weights).forEach(function(k){ if (p.weights[k] >= 3) o[k] = 1; }); return o; }
+
+/* patient: enter or change the clinic key */
+function keyPanel(msgText){
+  var plan = loadPlan();
+  var inp = h('input', {type:'text', 'aria-label':'Clinic key', placeholder:'ABCD-2345', autocomplete:'off', autocapitalize:'characters', spellcheck:'false'}), ap = h('button', {type:'button', class:'ghost', text:'Apply'}), st = h('p', {class:'err'});
+  ap.addEventListener('click', async function(){ st.textContent = ''; ap.disabled = true;
+    try { var np = await fetchPlan(inp.value); savePlan(np); var pr = loadProfile(); if (pr){ pr.code = np.code; lsSet(KEYS.prof, pr); } syncPlayer(); showHub(); }
+    catch(e){ st.textContent = keyError(e); ap.disabled = false; } });
+  var kids = [h('h3', {text: plan ? 'Your clinic key' : 'Have a key from your clinic?'})];
+  if (plan) kids.push(h('p', null, [h('b', {'data-notr':'1', text:fmtCode(plan.code)}), plan.inactive ? h('span', {class:'err', text:' · '+tr('This key is no longer active. Please ask your clinic.')}) : null]));
+  if (msgText) kids.push(h('p', {class:'muted', text:msgText}));
+  kids.push(h('div', {class:'rowin'}, [inp, ap]), st);
+  return kids;
+}
+function keyError(e){
+  return e.code === 'unknown' ? tr('That key was not found. Please check it with your clinic.')
+       : e.code === 'inactive' ? tr('This key is no longer active. Please ask your clinic.')
+       : tr('Could not check the key. Please check your internet connection.');
+}
+
+/* ===== clinician: patient keys ===== */
+ADMIN.plans = ADMIN.plans || [];
+async function postOrg(body){ body.key = lsGet('bts2-orgkey', ''); return post(body); }
+function shareText(code){ var url = location.origin + location.pathname + '?key=' + code; return 'Your Brain Training Studio key is ' + fmtCode(code) + '. Open ' + url + ' and play at least 15 minutes every day.\nआपकी ब्रेन ट्रेनिंग स्टूडियो की कुंजी ' + fmtCode(code) + ' है। रोज़ कम से कम 15 मिनट खेलें।'; }
+function copyBtn(text, label){
+  var b = h('button', {type:'button', class:'ghost small', text:label || 'Copy'});
+  b.addEventListener('click', function(){ var done = function(){ b.textContent = '✓ Copied'; setTimeout(function(){ b.textContent = label || 'Copy'; }, 1800); };
+    try { navigator.clipboard.writeText(text).then(done, function(){ prompt('Copy this:', text); }); } catch(e){ prompt('Copy this:', text); } });
+  return b;
+}
+async function showKeys(){
+  page('admin');
+  if (!SYNC.owner){ showOrgLogin(); return; }
+  var back = h('button', {type:'button', class:'ghost small', text:'← Organiser view'}); back.addEventListener('click', showAdmin);
+  app.append(back, h('div', null, [h('span', {class:'eyebrow', text:'Clinician'}), h('h1', {text:'Patient keys'}),
+    h('p', {class:'muted', text:'Enter MoCA or CANTAB results here, not on the patient’s device. Each key carries a plan that gives more practice to the weaker domains. Patients only type the key.'})]));
+  var row = h('div', {class:'btnrow', style:{justifyContent:'flex-start'}});
+  var nb = h('button', {type:'button', text:'＋ New patient key'}); nb.addEventListener('click', function(){ showKeyForm(null, 'patient'); });
+  var gb = h('button', {type:'button', class:'ghost', text:'＋ General key (friends, no tests)'}); gb.addEventListener('click', function(){ showKeyForm(null, 'general'); });
+  row.append(nb, gb); app.appendChild(row);
+  var status = h('p', {class:'muted', text:'Loading…'}); app.appendChild(status);
+  var tok = run, players;
+  try { players = await loadAll(); } catch(e){ if (tok !== run) return; status.textContent = 'Could not load keys. Check your connection.'; return; }
+  if (tok !== run) return; status.remove();
+  var count = {}; players.forEach(function(pl){ var c = pl.p.code; if (c) count[c] = (count[c]||0)+1; });
+  var plans = (ADMIN.plans || []).slice().sort(function(a,b){ return (b.updated||0)-(a.updated||0); });
+  var tb = h('tbody');
+  plans.forEach(function(pl){
+    var tr_ = h('tr', {class:'click', tabindex:'0'}, [
+      h('td', null, [h('b', {class:'code', text:fmtCode(pl.code)}), pl.active ? null : h('span', {class:'err', text:' off'})]),
+      h('td', {text:pl.label || '–'}), h('td', {text: pl.type === 'general' ? 'General' : 'Patient'}),
+      h('td', {text: (pl.focus||[]).map(function(d){ return DOM_LABEL[d] ? DOM_LABEL[d][1] : d; }).slice(0,3).join(', ') || 'Balanced'}),
+      h('td', {text:String(count[pl.code] || 0)}), h('td', {text: pl.updated ? fmtDate(pl.updated) : '–'})]);
+    function go(){ showKeyForm(pl, pl.type); } tr_.addEventListener('click', go); tr_.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
+    tb.appendChild(tr_);
+  });
+  var tbl = h('div', {class:'panel'}, [h('h3', {text:'Keys'}), h('div', {class:'tw'}, [h('table', null, [h('thead', null, [h('tr', null, ['Key','Label','Type','Focus','Players','Updated'].map(function(t){ return h('th', {text:t}); }))]), tb])])]);
+  if (!plans.length) tbl.appendChild(h('p', {text:'No keys yet. Make one with the buttons above.'}));
+  app.appendChild(tbl); footer();
+}
+
+function showKeyForm(plan, type){
+  page('admin'); var E = window.Engine, isNew = !plan; plan = plan || {type:type, weights:{}, scores:{}, minutes:15, active:true};
+  var general = (plan.type || type) === 'general', sc = plan.scores || {}, manual = !!(plan.scores && plan.scores.manual);
+  var back = h('button', {type:'button', class:'ghost small', text:'← Patient keys'}); back.addEventListener('click', showKeys);
+  app.append(back, h('div', null, [h('span', {class:'eyebrow', text: general ? 'General key' : 'Patient key'}),
+    h('h1', {text: isNew ? (general ? 'New general key' : 'New patient key') : 'Key '+fmtCode(plan.code)})]));
+  var p = h('div', {class:'panel'}); app.appendChild(p);
+  function field(label, val, ph, help){ var inp = h('input', {type:'text', placeholder:ph || '', autocomplete:'off', spellcheck:'false'}); inp.value = val == null ? '' : val;
+    p.appendChild(h('div', {style:{display:'flex', flexDirection:'column', gap:'6px'}}, [h('label', {style:{fontWeight:'700'}, text:label}), inp, help ? h('p', {class:'muted', text:help}) : null])); return inp; }
+  var fLabel = field(general ? 'Name for this key' : 'Patient label', plan.label, general ? 'e.g. Friends test group' : 'e.g. initials or clinic number', general ? null : 'Use initials or a clinic number rather than the full name. Patients never see this label.');
+  var fCode = isNew ? field('Key (optional)', '', general ? 'e.g. FRIENDS26' : 'leave blank for an automatic key', 'Leave blank and a random 8-character key is made. A custom key needs 4 to 16 letters or digits.') : null;
+  var fMin = field('Daily minutes target', plan.minutes || 15, '15');
+  var nums = {}, dateInp = null, pv = null;
+  function num(id, label, max, val){ var inp = h('input', {type:'text', inputmode:'numeric', autocomplete:'off'}); inp.value = val == null ? '' : val; nums[id] = inp; inp.addEventListener('input', recalc);
+    return h('div', {class:'rowin', style:{gridTemplateColumns:'1fr 96px', alignItems:'center'}}, [h('label', {text:label+(max ? ' (0–'+max+')' : '')}), inp]); }
+  if (!general){
+    p.appendChild(h('h3', {text:'Test results'}));
+    dateInp = field('Date of testing', sc.date || isoDay(Date.now()), 'YYYY-MM-DD');
+    p.appendChild(h('h3', {text:'MoCA subscores'}));
+    var mt = h('p', {class:'muted', text:'Total: –'}); p.appendChild(mt);
+    MOCA_MAP.forEach(function(m){ p.appendChild(num('m_'+m[0], m[1], m[2], sc.moca && sc.moca[m[0]])); });
+    p.appendChild(h('h3', {text:'CANTAB percentiles (1–99, higher is better)'}));
+    var st = h('p', {class:'muted', text:'Upload the CANTAB PDF report to fill these in, or type them.'}), file = h('input', {type:'file', accept:'application/pdf,.pdf', 'aria-label':'CANTAB report PDF'});
+    p.append(h('div', null, [file]), st);
+    CAN_MAP.forEach(function(c){ p.appendChild(num('c_'+c[0], c[1], 0, sc.cantab && sc.cantab[c[0]])); });
+    file.addEventListener('change', async function(){
+      var f = file.files[0]; if (!f) return;
+      if (!window.pdfjsLib){ st.textContent = 'The PDF reader could not load. Please type the percentiles.'; return; }
+      st.textContent = 'Reading the report…';
+      try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        var pdf = await pdfjsLib.getDocument({data: await f.arrayBuffer()}).promise, pages = [];
+        for (var i=1;i<=pdf.numPages;i++){ var c = await (await pdf.getPage(i)).getTextContent(); pages.push(c.items.map(function(t){ return {str:t.str, x:t.transform[4], y:t.transform[5]}; })); }
+        var parsed = E.parseCantab(E.itemsToText(pages));
+        Object.keys(parsed.measures).forEach(function(k){ if (nums['c_'+k]) nums['c_'+k].value = parsed.measures[k].pct; });
+        st.textContent = parsed.found ? 'Read '+parsed.found+' of 5 measures from the report. Please check them.' : 'No measures found. Please type the percentiles.';
+        recalc();
+      } catch(err){ st.textContent = 'Could not read this PDF here. Please type the percentiles.'; }
+    });
+  }
+  /* priorities */
+  var pr = h('div', {class:'panel'}); app.appendChild(pr);
+  var weights = Object.assign({}, plan.weights), cur = {def:{}, src:{}};
+  function val(id){ var x = nums[id] ? nums[id].value.trim() : ''; return x === '' || isNaN(+x) ? null : +x; }
+  function inputs(){ var moca = {}, cantab = {}; MOCA_MAP.forEach(function(m){ moca[m[0]] = val('m_'+m[0]); }); CAN_MAP.forEach(function(c){ cantab[c[0]] = val('c_'+c[0]); }); return {moca:moca, cantab:cantab}; }
+  function recalc(){
+    if (!general){ var x = inputs(); cur = domainDeficits(x.moca, x.cantab);
+      var tot = MOCA_MAP.reduce(function(s,m){ return x.moca[m[0]] == null ? s : s + x.moca[m[0]]; }, 0), any = MOCA_MAP.some(function(m){ return x.moca[m[0]] != null; });
+      if (mt) mt.textContent = any ? 'Total from subscores: '+tot+'/30 (add 1 point if 12 years of education or less)' : 'Total: –';
+      if (!manual) weights = autoWeights(cur.def); }
+    else { cur = {def:{}, src:{}}; if (!manual) GAME_KEYS.forEach(function(k){ weights[k] = 1; }); }
+    drawPr();
+  }
+  function drawPr(){
+    clear(pr);
+    pr.appendChild(h('h3', {text:'Domain profile'}));
+    if (general) pr.appendChild(h('p', {class:'muted', text:'No test results: every game gets the same priority, and the task of the day rotates evenly.'}));
+    else {
+      var dl = h('div', {class:'dombars'});
+      DOMS.forEach(function(d){ var v = cur.def[d[0]]; dl.appendChild(h('div', {class:'dombar'}, [h('span', {text:d[1]}), h('i', null, [h('em', {style:{width: v == null ? '0' : Math.round(v*100)+'%', background: v >= .6 ? 'var(--bad)' : v >= .35 ? 'var(--warn, #c98a1b)' : 'var(--good)'}})]), h('small', {class:'muted', text: v == null ? 'no data' : v >= .6 ? 'marked' : v >= .35 ? 'mild' : 'fine'})])); });
+      pr.appendChild(dl);
+    }
+    pr.appendChild(h('h3', {text:'Game priority (how often each game is the task of the day)'}));
+    var tot = GAME_KEYS.reduce(function(s,k){ return s + (weights[k] == null ? 1 : weights[k]); }, 0) || 1;
+    var list = h('div', {class:'prlist'});
+    GAME_KEYS.forEach(function(k){
+      var w = weights[k] == null ? 1 : weights[k];
+      var minus = h('button', {type:'button', class:'ghost small', 'aria-label':'Less '+GAMES[k].name, text:'−'}), plus = h('button', {type:'button', class:'ghost small', 'aria-label':'More '+GAMES[k].name, text:'+'});
+      minus.addEventListener('click', function(){ manual = true; weights[k] = Math.max(0, w - .5); drawPr(); });
+      plus.addEventListener('click', function(){ manual = true; weights[k] = Math.min(5, w + .5); drawPr(); });
+      list.appendChild(setVars(h('div', {class:'prrow'}, [h('span', {class:'pri', html:ICON[k]}), h('div', null, [h('b', {text:GAMES[k].name}), h('small', {class:'muted', text: GAMES[k].trains})]),
+        h('i', {class:'prbar'}, [h('em', {style:{width: Math.round(w/5*100)+'%'}})]), h('span', {class:'prpct', text: w === 0 ? 'off' : Math.round(w/tot*100)+'% of days'}), minus, plus]), k));
+    });
+    pr.appendChild(list);
+    if (manual){ var au = h('button', {type:'button', class:'ghost small', text:'Back to automatic priorities'}); au.addEventListener('click', function(){ manual = false; recalc(); }); pr.appendChild(au); }
+    pr.appendChild(h('p', {class:'muted', text:'All games stay open for free play. Priorities only decide the task of the day. Rule of thumb: a weaker domain makes its game up to 5 times more likely. Daily Anchors is always available outside this rotation.'}));
+  }
+  /* save */
+  var sv = h('div', {class:'panel'}); app.appendChild(sv);
+  var msg = h('p', {class:'err', 'aria-live':'polite'}), save = h('button', {type:'button', text: isNew ? 'Create key' : 'Save changes'});
+  sv.append(save, msg);
+  save.addEventListener('click', async function(){
+    msg.textContent = ''; var label = fLabel.value.trim(), code = fCode ? normCode(fCode.value) : plan.code, mins = +fMin.value || 15;
+    if (!label){ msg.textContent = 'Please add a label.'; return; }
+    if (fCode && fCode.value.trim() && !/^[A-Z0-9]{4,16}$/.test(code)){ msg.textContent = 'A custom key needs 4 to 16 letters or digits.'; return; }
+    var x = general ? {moca:{}, cantab:{}} : inputs();
+    if (!general && !MOCA_MAP.some(function(m){ return x.moca[m[0]] != null; }) && !CAN_MAP.some(function(c){ return x.cantab[c[0]] != null; }) && !manual){ msg.textContent = 'Enter at least one MoCA or CANTAB result, or use a general key.'; return; }
+    var body = {type:'plan', isNew:isNew, plan:{code:code || '', label:label, type: general ? 'general' : 'patient', minutes:mins, active: plan.active !== false,
+      weights:weights, focus: general ? [] : focusOf(cur.def), scores: general ? {} : {date: dateInp ? dateInp.value.trim() : '', moca:x.moca, cantab:x.cantab, deficits:cur.def, manual:manual}}};
+    save.disabled = true; save.textContent = 'Saving…';
+    try { var j = await postOrg(body); showKeyDone(j.code, label, isNew); }
+    catch(e){ save.disabled = false; save.textContent = isNew ? 'Create key' : 'Save changes'; msg.textContent = e.message === 'taken' ? 'That key is already in use. Choose another.' : e.message === 'key' ? 'Your organiser key was not accepted.' : 'Could not save. Check your connection and try again.'; }
+  });
+  if (!isNew){
+    var off = h('button', {type:'button', class:'ghost', text: plan.active === false ? 'Turn this key back on' : 'Turn this key off'});
+    off.addEventListener('click', async function(){ off.disabled = true; var pl2 = Object.assign({}, plan, {active: plan.active === false}); try { await postOrg({type:'plan', isNew:false, plan:pl2}); showKeys(); } catch(e){ off.disabled = false; msg.textContent = 'Could not change the key.'; } });
+    sv.append(h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}, [copyBtn(shareText(plan.code), 'Copy message for patient'), off]));
+  }
+  recalc(); footer();
+}
+function showKeyDone(code, label, isNew){
+  page('admin');
+  var p = h('div', {class:'panel res keydone'}); app.appendChild(p);
+  p.append(h('span', {class:'eyebrow', text: isNew ? 'Key created' : 'Saved'}), h('h2', {text:label}), h('p', {class:'bigcode', text:fmtCode(code)}),
+    h('p', {text:'Give this key to the patient. They type it once when they start, or open the link below.'}),
+    h('pre', {class:'share', text:shareText(code)}),
+    h('div', {class:'btnrow', style:{justifyContent:'flex-start'}}, [copyBtn(fmtCode(code), 'Copy key'), copyBtn(shareText(code), 'Copy message (WhatsApp/SMS)')]));
+  var b = h('button', {type:'button', class:'ghost', text:'← All keys'}); b.addEventListener('click', showKeys); p.appendChild(b);
+  if (isNew) burst(p.querySelector('.bigcode'));
+  footer();
+}
+
+/* ===== start-up ===== */
+var URL_KEY = (function(){ try { var m = /[?&]key=([A-Za-z0-9-]{4,20})/.exec(location.search); return m ? normCode(m[1]) : ''; } catch(e){ return ''; } })();
 window.addEventListener('hashchange', route);
 startTranslator(app);
 initSync();
+refreshPlan();
+if (URL_KEY && loadProfile() && (!loadPlan() || loadPlan().code !== URL_KEY)) fetchPlan(URL_KEY).then(function(np){ savePlan(np); var pr = loadProfile(); pr.code = np.code; lsSet(KEYS.prof, pr); syncPlayer(); if (currentView === 'hub') showHub(); }).catch(function(){});
+window.__bts = {taskFor:taskFor, todayTask:todayTask, loadPlan:loadPlan, loadMins:loadMins, upsertRecord:upsertRecord, newSid:newSid, isoDay:isoDay, GAMES:GAMES, syncPlayer:syncPlayer, showHub:showHub, showAdmin:showAdmin, showKeys:showKeys, setView:function(v){ currentView = v; }};
 route();
 
 
