@@ -768,7 +768,7 @@ button:not(:disabled):hover{filter:brightness(1.07)}
 
 </script>
 <script>
-window.HI_DICT = {
+window.HI_DICT = {'Dark mode':'डार्क मोड', 'Light mode':'लाइट मोड', 
 /* shell, navigation, profile */
 'Brain Training Studio':'ब्रेन ट्रेनिंग स्टूडियो','Home':'होम','My progress':'मेरी प्रगति','Personalise':'अपने हिसाब से','Organiser':'आयोजक','Organiser view':'आयोजक व्यू',
 '🔊 Voice on':'🔊 आवाज़ चालू','🔇 Voice off':'🔇 आवाज़ बंद','Listen again':'फिर से सुनें',
@@ -1017,6 +1017,13 @@ function startTranslator(root){
     else for (var i=0;i<m.addedNodes.length;i++) trNode(m.addedNodes[i]);
   }); }).observe(root, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['placeholder','aria-label','title']});
 }
+
+/* ===== theme: light by default, dark only if the player chooses it ===== */
+function themeDark(){ try { return JSON.parse(localStorage.getItem('bts2-theme') || 'false') === true; } catch(e){ return false; } }
+function applyTheme(){ document.documentElement.setAttribute('data-theme', themeDark() ? 'dark' : 'light'); }
+function themeBtn(cls){ var b = h('button', {type:'button', class:cls || 'small ghost', 'aria-label': themeDark() ? 'Light mode' : 'Dark mode', title: themeDark() ? 'Light mode' : 'Dark mode', text: themeDark() ? '☀️' : '🌙'});
+  b.addEventListener('click', function(){ try { localStorage.setItem('bts2-theme', JSON.stringify(!themeDark())); } catch(e){} applyTheme(); b.textContent = themeDark() ? '☀️' : '🌙'; var l = themeDark() ? 'Light mode' : 'Dark mode'; b.setAttribute('aria-label', tr(l)); b.title = tr(l); }); return b; }
+applyTheme();
 
 /* ===== speech output (spoken instructions) ===== */
 var TTS = window.speechSynthesis || null, VOICES = [];
@@ -2122,7 +2129,7 @@ function showLanding(){
   /* top bar */
   var seg = h('div', {class:'seg', role:'group', 'aria-label':'Language / भाषा'});
   [['en','English'],['hi','हिंदी']].forEach(function(o){ var b = h('button', {type:'button', 'aria-pressed': String(LL === o[0]), lang:o[0], text:o[1]}); b.addEventListener('click', function(){ setLL(o[0]); }); seg.appendChild(b); });
-  root.appendChild(h('div', {class:'lbar'}, [h('div', {class:'brand'}, [h('span', {html:ICON.brand}), h('b', {text:'Brain Training Studio'})]), h('div', {class:'lbar-r'}, [seg, startBtn(T('Start','शुरू करें'), 'small')])]));
+  root.appendChild(h('div', {class:'lbar'}, [h('div', {class:'brand'}, [h('span', {html:ICON.brand}), h('b', {text:'Brain Training Studio'})]), h('div', {class:'lbar-r'}, [seg, themeBtn('ghost small'), startBtn(T('Start','शुरू करें'), 'small')])]));
 
   /* hero */
   var words = LL === 'hi' ? ['याददाश्त','ध्यान','तेज़ी','शब्द','रोज़ के काम'] : ['memory','focus','speed','words','everyday skills'];
@@ -2442,7 +2449,7 @@ function header(){
   function nb(label, fn, ghost){ var b = h('button', {type:'button', class:'small'+(ghost ? ' ghost' : ''), text:label}); b.addEventListener('click', fn); nav.appendChild(b); }
   nb('Home', showHub, true); nb('My progress', showProgress, true); nb('Personalise', showPersonalise, true);
   var lb = h('button', {type:'button', class:'small ghost', 'data-notr':'1', text: LANG === 'hi' ? 'English' : 'हिंदी'}); lb.addEventListener('click', function(){ stopSpeech(); setLang(LANG === 'hi' ? 'en' : 'hi'); syncPlayer(); route(); }); nav.appendChild(lb);
-  var vb = h('button', {type:'button', class:'small ghost', 'aria-pressed': String(voiceOn()), text: voiceOn() ? '🔊 Voice on' : '🔇 Voice off'}); vb.addEventListener('click', function(){ setVoiceOn(!voiceOn()); vb.textContent = voiceOn() ? '🔊 Voice on' : '🔇 Voice off'; vb.setAttribute('aria-pressed', String(voiceOn())); }); nav.appendChild(vb);
+  var vb = h('button', {type:'button', class:'small ghost', 'aria-pressed': String(voiceOn()), text: voiceOn() ? '🔊 Voice on' : '🔇 Voice off'}); vb.addEventListener('click', function(){ setVoiceOn(!voiceOn()); vb.textContent = voiceOn() ? '🔊 Voice on' : '🔇 Voice off'; vb.setAttribute('aria-pressed', String(voiceOn())); }); nav.appendChild(vb); nav.appendChild(themeBtn());
   if (SYNC.owner) nb('Organiser view', showAdmin);
   return h('div', {class:'bar'}, [h('div', {style:{display:'flex', flexDirection:'column', gap:'6px'}}, [brand, syncChip]), nav]);
 }
