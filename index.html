@@ -441,6 +441,16 @@ button:not(:disabled):hover{filter:brightness(1.07)}
 @media (max-width:640px){.prrow{grid-template-columns:40px minmax(0,1fr) auto auto}.prrow .prbar{grid-column:2/-1;grid-row:2}.prrow .prpct{grid-column:2;grid-row:3;text-align:left}}
 .bigcode{font:700 clamp(40px,9vw,64px)/1.1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;color:var(--accent)}
 .share{white-space:pre-wrap;background:var(--bg2);border-radius:14px;padding:14px;font:15px/1.5 var(--sans);margin:0}
+/* ===== refocus pause between puzzles ===== */
+.refocus{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));background:var(--bg);text-align:center;cursor:pointer;animation:rise .25s ease both}
+.refocus p{font:700 clamp(22px,4.5vw,30px)/1.3 var(--display);max-width:22ch;color:var(--fg)}
+.refocus small{color:var(--muted);font-size:14px}
+.rdot{width:26px;height:26px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 10px var(--accent-soft)}
+.refocus.calm .rdot{animation:breathe2 4.6s ease-in-out infinite}
+@keyframes breathe2{0%,100%{transform:scale(1)}45%{transform:scale(2.1)}}
+.tbar{display:block;width:100%;max-width:280px;height:10px;border-radius:5px;background:var(--bg2);overflow:hidden}
+.tbar em{display:block;height:100%;background:var(--gc);border-radius:5px;transition:width .8s ease}
+@media (prefers-reduced-motion:reduce){.refocus,.rdot{animation:none!important}}
 @media (prefers-reduced-motion:reduce){
   .ai *,.ai,.wrap>*,.land *,.confetti *,.hero{animation:none!important;transition:none!important}
   .rv,.step{opacity:1!important;transform:none!important}.sline{transform:none!important}
@@ -1191,6 +1201,19 @@ function make(tok){
     return new Promise(function(r){ clear(box); var b = h('button', {class:'go', type:'button', text:label||'Next'}); b.addEventListener('click', function(){ r(); }); box.appendChild(b); });
   };
   o.practice = false;
+  /* refocus between puzzles: a short "ready" dot after a right answer, a calm breath-and-refocus after a wrong one.
+     Time spent here is kept in pausedMs so timed scores can leave it out. Tapping skips it. */
+  o.pausedMs = 0;
+  o.refocus = function(good, quick){
+    if (tok !== run || (window.__speed || 1) > 5) return Promise.resolve();
+    var t0 = performance.now(), host = document.getElementById('app') || document.body;
+    var msg = h('p', {text: good ? L('Next one…', 'अगला…') : L('That’s alright. Take a slow breath in… and out.', 'कोई बात नहीं। धीरे से साँस लें… और छोड़ें।')});
+    var ov = h('div', {class:'refocus'+(good ? '' : ' calm'), role:'status', 'data-notr':'1'}, [h('i', {class:'rdot'}), msg, h('small', {text:L('Tap to continue', 'आगे बढ़ने के लिए छुएँ')})]);
+    host.appendChild(ov);
+    var skip; var tapped = new Promise(function(r){ skip = r; ov.addEventListener('click', function(){ r(); }); });
+    var steps = good ? (quick ? o.wait(650) : o.wait(1100)) : o.wait(2600).then(function(){ msg.textContent = L('Now look at the dot. Get ready for the next one.', 'अब बिंदु को देखें। अगले के लिए तैयार हो जाइए।'); return o.wait(2000); });
+    return Promise.race([steps, tapped]).then(function(){ ov.remove(); o.pausedMs += performance.now() - t0; });
+  };
   o.say = function(t){ return tok === run ? say(t) : Promise.resolve(); };
   o.until = function(ms){ var end = performance.now() + ms/SPEED; return function(){ return performance.now() < end && tok === run; }; };
   return o;
@@ -1276,7 +1299,7 @@ async function m1(root, ctx, mode){
     else { streak = 0; nd = Math.min(1200, Math.round(dur*1.3)); dir = 1; }
     if (dir){ if (lastDir && dir !== lastDir) revs.push(dur); lastDir = dir; }
     dur = nd;
-    await ctx.wait(1100);
+    await ctx.wait(1100); await ctx.refocus(ok);
   }
   setProg(p, 1);
   var thr = Math.round(revs.length >= 4 ? mean(revs.slice(-6)) : mean(durs.slice(-8)));
@@ -1289,58 +1312,82 @@ async function m1(root, ctx, mode){
 async function m3(root, ctx, mode){
   if (mode === 'nback') return m3nback(root, ctx);
   var tiles = mode === 'tiles', backwards = mode === 'back';
-  var len = 3, fails = 0, best = 0, trials = 0, MAXT = ctx.practice ? 3 : 14, okN = 0;
+  /* two rounds; each starts easy (length 3) and climbs one step after every right answer.
+     Two misses at a length step it down by one, so the round keeps going near the person's limit. */
+  var ROUNDS = ctx.practice ? 1 : 2, PER = ctx.practice ? 3 : 10, TOTAL = ROUNDS*PER, MAXLEN = 9;
+  var best = 0, bests = [], okN = 0, trials = 0;
   var p = prog(), tag = h('p', {class:'tag2'}), msg = h('p', {class:'msg'}), stageBox = h('div'), fb = h('p', {class:'fb'}), ctl = h('div', {class:'btnrow'});
   root.append(tag, p, msg, stageBox, fb, ctl);
-  msg.textContent = tiles ? 'Squares will light up one by one. Then tap them in the same order.' : backwards ? 'Numbers appear one at a time. Then enter them in REVERSE order.' : 'Numbers appear one at a time. Then enter them in the same order.';
-  ctx.say(msg.textContent);
+  var intro = tiles ? 'Squares will light up one by one. Then tap them in the same order.' : backwards ? 'Numbers appear one at a time. Then enter them in REVERSE order.' : 'Numbers appear one at a time. Then enter them in the same order.';
+  msg.textContent = intro;
+  if (!ctx.practice) root.insertBefore(h('p', {class:'muted', text:L('Two rounds of '+PER+' puzzles. Each round starts easy and gets harder as you get them right.', 'दो राउंड, हर राउंड में '+PER+' पहेलियाँ। हर राउंड आसान से शुरू होता है और सही जवाब के साथ कठिन होता जाता है।')}), msg.nextSibling);
+  ctx.say(intro);
   await ctx.next(ctl, 'Start'); stopSpeech();
-  while (trials < MAXT && fails < 2){
-    trials++; setProg(p, trials/MAXT); tag.textContent = 'Length '+len+' · try '+trials; fb.textContent=''; fb.className='fb'; clear(ctl);
-    var n = tiles && len >= 6 ? 4 : 3, N = n*n;
-    var seq = [];
-    if (tiles){ var pool = shuffle(Array.from({length:N}, function(_,i){ return i; })); seq = pool.slice(0, Math.min(len, N)); }
-    else { while (seq.length < len){ var d = rnd(0,9); if (seq[seq.length-1] !== d) seq.push(d); } }
-    clear(stageBox);
-    msg.textContent = 'Watch…';
-    if (tiles){
-      var g = h('div', {class:'gridn', style:{gridTemplateColumns:'repeat('+n+',1fr)'}}), cs = [];
-      for (var i=0;i<N;i++){ var c = h('button', {class:'cell', type:'button', disabled:'disabled', 'aria-label':'Square '+(i+1)}); g.appendChild(c); cs.push(c); }
-      stageBox.appendChild(g); await ctx.wait(800);
-      for (var k=0;k<seq.length;k++){ cs[seq[k]].classList.add('lit'); await ctx.wait(700); cs[seq[k]].classList.remove('lit'); await ctx.wait(300); }
-      msg.textContent = 'Now tap them in the same order';
-      var got = await new Promise(function(res){ var picks = []; cs.forEach(function(c, i){ c.disabled = false; c.classList.add('live'); c.onclick = function(){ if (picks.length >= seq.length) return; picks.push(i); c.classList.add('sel'); c.textContent = String(picks.length); if (picks.length === seq.length) setTimeout(function(){ res(picks); }, 250); }; }); });
-      cs.forEach(function(c){ c.disabled = true; c.classList.remove('live'); });
-      var right = got.join(',') === seq.join(',');
-      if (!right) seq.forEach(function(s, i){ cs[s].classList.add('right'); cs[s].textContent = String(i+1); });
-    } else {
-      var big = h('div', {class:'flashnum', 'aria-live':'off'}); stageBox.appendChild(big); await ctx.wait(700);
-      for (var k2=0;k2<seq.length;k2++){ big.textContent = String(seq[k2]); await ctx.wait(900); big.textContent = ''; await ctx.wait(250); }
-      msg.textContent = backwards ? 'Enter them BACKWARDS' : 'Enter them in order';
-      clear(stageBox); var entry = h('p', {class:'entry', text:'·'}), pad = h('div', {class:'keypad'}); stageBox.append(entry, pad);
-      var typed = await new Promise(function(res){
-        var cur = [];
-        function show(){ entry.textContent = cur.length ? cur.join(' ') : '·'; }
-        [1,2,3,4,5,6,7,8,9,0].forEach(function(dg){ var b = h('button', {type:'button', text:String(dg)}); b.addEventListener('click', function(){ if (cur.length < seq.length){ cur.push(dg); show(); } }); pad.appendChild(b); });
-        var del = h('button', {type:'button', class:'ghost small', text:'Delete'}); del.addEventListener('click', function(){ cur.pop(); show(); });
-        var ok = h('button', {type:'button', class:'small', text:'Done'}); ok.addEventListener('click', function(){ res(cur.slice()); });
-        clear(ctl); ctl.append(del, ok);
-      });
-      clear(ctl);
-      var target = backwards ? seq.slice().reverse() : seq;
-      var right = typed.join(',') === target.join(',');
-      if (!right) entry.textContent = 'It was: '+target.join(' ');
+  for (var rd=0; rd<ROUNDS; rd++){
+    var len = 3, fails = 0, rBest = 0;
+    if (rd > 0){
+      clear(stageBox); fb.textContent = ''; fb.className = 'fb'; setProg(p, trials/TOTAL);
+      tag.textContent = L('Round 1 done', 'राउंड 1 पूरा');
+      msg.textContent = L('Well done. Round 1 best: '+bests[0]+'. Round 2 starts easy again and climbs. Rest your eyes for a moment.', 'शाबाश। राउंड 1 में सबसे लंबा: '+bests[0]+'। राउंड 2 फिर आसान से शुरू होगा और आगे बढ़ेगा। एक पल आँखों को आराम दें।');
+      ctx.say(msg.textContent);
+      await ctx.wait(1500); await ctx.next(ctl, L('Start round 2', 'राउंड 2 शुरू करें')); stopSpeech();
     }
-    if (right){ okN++; best = Math.max(best, len); fb.textContent = 'Correct'; fb.className = 'fb good'; len++; fails = 0; }
-    else { fails++; fb.textContent = fails < 2 ? 'Not quite. One more try at this length.' : 'That is your limit for today.'; fb.className = 'fb bad'; }
-    await ctx.wait(right ? 1000 : 2000);
+    for (var i=0; i<PER; i++){
+      trials++; setProg(p, (trials-1)/TOTAL);
+      tag.textContent = (ROUNDS > 1 ? L('Round '+(rd+1)+' of '+ROUNDS, 'राउंड '+(rd+1)+'/'+ROUNDS)+' · ' : '')+L('Puzzle '+(i+1)+' of '+PER, 'पहेली '+(i+1)+'/'+PER)+' · '+L('length '+len, 'लंबाई '+len);
+      fb.textContent=''; fb.className='fb'; clear(ctl);
+      var n = tiles && len >= 6 ? 4 : 3, N = n*n;
+      var seq = [];
+      if (tiles){ var pool = shuffle(Array.from({length:N}, function(_,i){ return i; })); seq = pool.slice(0, Math.min(len, N)); }
+      else { while (seq.length < len){ var d = rnd(0,9); if (seq[seq.length-1] !== d) seq.push(d); } }
+      clear(stageBox);
+      msg.textContent = 'Watch…';
+      var right;
+      if (tiles){
+        var g = h('div', {class:'gridn', style:{gridTemplateColumns:'repeat('+n+',1fr)'}}), cs = [];
+        for (var c0=0;c0<N;c0++){ var c = h('button', {class:'cell', type:'button', disabled:'disabled', 'aria-label':'Square '+(c0+1)}); g.appendChild(c); cs.push(c); }
+        stageBox.appendChild(g); await ctx.wait(800);
+        for (var k=0;k<seq.length;k++){ cs[seq[k]].classList.add('lit'); await ctx.wait(700); cs[seq[k]].classList.remove('lit'); await ctx.wait(300); }
+        msg.textContent = 'Now tap them in the same order';
+        var got = await new Promise(function(res){ var picks = []; cs.forEach(function(c, i){ c.disabled = false; c.classList.add('live'); c.onclick = function(){ if (picks.length >= seq.length) return; picks.push(i); c.classList.add('sel'); c.textContent = String(picks.length); if (picks.length === seq.length) setTimeout(function(){ res(picks); }, 250); }; }); });
+        cs.forEach(function(c){ c.disabled = true; c.classList.remove('live'); });
+        right = got.join(',') === seq.join(',');
+        if (!right) seq.forEach(function(s, i){ cs[s].classList.add('right'); cs[s].textContent = String(i+1); });
+      } else {
+        var big = h('div', {class:'flashnum', 'aria-live':'off'}); stageBox.appendChild(big); await ctx.wait(700);
+        for (var k2=0;k2<seq.length;k2++){ big.textContent = String(seq[k2]); await ctx.wait(900); big.textContent = ''; await ctx.wait(250); }
+        msg.textContent = backwards ? 'Enter them BACKWARDS' : 'Enter them in order';
+        clear(stageBox); var entry = h('p', {class:'entry', text:'·'}), pad = h('div', {class:'keypad'}); stageBox.append(entry, pad);
+        var typed = await new Promise(function(res){
+          var cur = [];
+          function show(){ entry.textContent = cur.length ? cur.join(' ') : '·'; }
+          [1,2,3,4,5,6,7,8,9,0].forEach(function(dg){ var b = h('button', {type:'button', text:String(dg)}); b.addEventListener('click', function(){ if (cur.length < seq.length){ cur.push(dg); show(); } }); pad.appendChild(b); });
+          var del = h('button', {type:'button', class:'ghost small', text:'Delete'}); del.addEventListener('click', function(){ cur.pop(); show(); });
+          var ok = h('button', {type:'button', class:'small', text:'Done'}); ok.addEventListener('click', function(){ res(cur.slice()); });
+          clear(ctl); ctl.append(del, ok);
+        });
+        clear(ctl);
+        var target = backwards ? seq.slice().reverse() : seq;
+        right = typed.join(',') === target.join(',');
+        if (!right) entry.textContent = 'It was: '+target.join(' ');
+      }
+      if (right){ okN++; rBest = Math.max(rBest, len); best = Math.max(best, len); fb.textContent = 'Correct'; fb.className = 'fb good'; len = Math.min(MAXLEN, len+1); fails = 0; }
+      else { fails++;
+        if (fails >= 2){ len = Math.max(2, len-1); fails = 0; fb.textContent = L('Not quite. The next one will be a little shorter.', 'पूरा सही नहीं। अगली थोड़ी छोटी होगी।'); }
+        else fb.textContent = 'Not quite. One more try at this length.';
+        fb.className = 'fb bad'; }
+      await ctx.wait(right ? 1000 : 2200);
+      if (i < PER-1) await ctx.refocus(right);
+    }
+    bests.push(rBest);
   }
   setProg(p, 1);
-  var label = tiles ? 'squares' : 'numbers';
-  return { m:{v:best}, headline:'Your span today: '+best+' '+label+(backwards ? ' backwards' : ''),
-    detail:'span '+best+'; correct '+okN+'/'+trials,
-    rows:[['Longest sequence remembered', best+' '+label],['Correct tries', okN+' of '+trials]],
-    note:'Most adults hold around 5 to 7 items forwards and a little less backwards. Compare with your own earlier scores.' };
+  var label = tiles ? 'squares' : 'numbers', rows = [['Longest sequence remembered', best+' '+label],['Correct', okN+' of '+trials]];
+  if (bests.length > 1) rows.push(['Best in round 1', String(bests[0])],['Best in round 2', String(bests[1])]);
+  return { m:{v:best, r1:bests[0], r2:bests[1] == null ? null : bests[1], acc:Math.round(okN/trials*100)}, headline:'Your span today: '+best+' '+label+(backwards ? ' backwards' : ''),
+    detail:'span '+best+(bests.length > 1 ? ' (round 1 '+bests[0]+', round 2 '+bests[1]+')' : '')+'; correct '+okN+'/'+trials,
+    rows:rows,
+    note:'Most adults hold around 5 to 7 items forwards and a little less backwards. Round 2 often goes further once you are warmed up.' };
 }
 async function m3nback(root, ctx){
   var POOL = ['🍎','🌸','🐟','⭐','🚗','🔔','🌙','🎈'], blocks = [1, null], accs = [], nUsed = [];
@@ -1404,7 +1451,7 @@ async function m4(root, ctx, mode){
     var good = pk.o.k === rule;
     if (good){ ok++; runLen++; (isSwitch ? rtSw : rtRep).push(pk.rt); } else if (sinceSwitch <= 2 && pk.o.k === oldRule && oldRule !== rule) persev++;
     fb.textContent = good ? 'Correct' : 'Not that one. The rule is '+rule+'.'; fb.className = 'fb '+(good?'good':'bad');
-    await ctx.wait(good ? 700 : 1500);
+    await ctx.wait(good ? 700 : 1500); await ctx.refocus(good, true);
   }
   setProg(p, 1);
   var cost = rtSw.length && rtRep.length ? Math.round(mean(rtSw)-mean(rtRep)) : null, acc = Math.round(ok/TRIALS*100);
@@ -1433,7 +1480,7 @@ async function m4numlet(root, ctx){
     if (good){ ok++; if (prevPos !== null) (prevPos !== pos ? rtSw : rtRep).push(a.rt); }
     prevPos = pos;
     fb.textContent = good ? 'Correct' : 'Not quite'; fb.className = 'fb '+(good?'good':'bad');
-    await ctx.wait(good ? 500 : 1100);
+    await ctx.wait(good ? 500 : 1100); await ctx.refocus(good, true);
   }
   setProg(p, 1);
   var acc = Math.round(ok/TRIALS*100), cost = rtSw.length && rtRep.length ? Math.round(mean(rtSw)-mean(rtRep)) : null;
@@ -1453,10 +1500,10 @@ async function m4stroop(root, ctx){
     var a = await new Promise(function(res){ clear(btns); var s = performance.now(); INKS.forEach(function(k, i){ var b = h('button', {type:'button', class:'go'}, [h('i', {style:{background:k[1]}}), k[0].charAt(0)+k[0].slice(1).toLowerCase()]); b.addEventListener('click', function(){ res({i:i, rt:performance.now()-s}); }); btns.appendChild(b); }); });
     var good = a.i === ink; if (good){ ok++; (cong ? rtC : rtI).push(a.rt); }
     fb.textContent = good ? 'Correct' : 'The ink was '+INKS[ink][0].toLowerCase(); fb.className = 'fb '+(good?'good':'bad');
-    await ctx.wait(good ? 400 : 1000);
+    await ctx.wait(good ? 400 : 1000); await ctx.refocus(good, true);
   }
   setProg(p, 1);
-  var mins = (performance.now()-t0)/60000*SPEED, cpm = r1(ok/Math.max(mins, 0.1)), inter = rtC.length && rtI.length ? Math.round(mean(rtI)-mean(rtC)) : null;
+  var mins = (performance.now()-t0-ctx.pausedMs)/60000*SPEED, cpm = r1(ok/Math.max(mins, 0.1)), inter = rtC.length && rtI.length ? Math.round(mean(rtI)-mean(rtC)) : null;
   return { m:{v:cpm, acc:Math.round(ok/TRIALS*100), inter:inter}, headline:cpm+' correct per minute; interference '+(inter==null?'n/a':inter+' ms'), detail:'cpm '+cpm+'; acc '+Math.round(ok/TRIALS*100)+'%; interference '+inter,
     rows:[['Correct per minute', String(cpm)],['Accuracy', Math.round(ok/TRIALS*100)+'%'],['Slowdown when word and ink clash', inter==null?'n/a':inter+' ms']],
     note:'This trains holding back an automatic response. If you have colour-vision difficulty, choose another game.' };
@@ -1500,7 +1547,7 @@ async function m5(root, ctx, mode){
     if (good){ ok++; streak++; if (streak>=2){ streak=0; n = Math.min(8, n+1); } } else { streak = 0; n = Math.max(4, n-1); }
     maxN = Math.max(maxN, n);
     fb.textContent = good ? 'Correct' : (odd ? 'The different one is marked green' : 'The matching one is marked green'); fb.className = 'fb '+(good?'good':'bad');
-    await ctx.wait(good ? 900 : 1900);
+    await ctx.wait(good ? 900 : 1900); await ctx.refocus(good);
   }
   setProg(p, 1);
   var avg = r1(mean(sizes));
@@ -1531,7 +1578,7 @@ async function m5copy(root, ctx){
     pat.forEach(function(i){ cs[i].classList.remove('sel'); cs[i].classList.add('right'); }); picked.forEach(function(i){ if (pat.indexOf(i) < 0) cs[i].classList.add('wrong'); });
     if (good){ ok++; best = Math.max(best, k); k = Math.min(11, k+1); } else k = Math.max(2, k-1);
     fb.textContent = good ? 'Exact copy' : 'Green shows the pattern'; fb.className = 'fb '+(good?'good':'bad');
-    await ctx.wait(good ? 1000 : 2000);
+    await ctx.wait(good ? 1000 : 2000); await ctx.refocus(good);
   }
   setProg(p, 1);
   var avg = r1(mean(ks));
@@ -1591,7 +1638,7 @@ async function m2(root, ctx, mode){
           ctx.say(qq);
           var a = await ctx.ask(box, opts.map(nm));
           var good = opts[a.i] === right; if (good) ok++;
-          fb.textContent = good ? L('Yes', 'सही') : L('It was: ', 'सही उत्तर: ')+nm(right); fb.className = 'fb '+(good?'good':'bad'); await ctx.wait(good ? 800 : 1900);
+          fb.textContent = good ? L('Yes', 'सही') : L('It was: ', 'सही उत्तर: ')+nm(right); fb.className = 'fb '+(good?'good':'bad'); await ctx.wait(good ? 800 : 1900); await ctx.refocus(good);
         }
         return ok/order.length;
       };
@@ -1620,7 +1667,7 @@ async function m2(root, ctx, mode){
         var good2 = pk === order2[m][1]; if (good2) ok2++;
         var cs = g2.children; cs[order2[m][1]].firstChild.textContent = ob[0]; cs[order2[m][1]].classList.add('right'); if (!good2) cs[pk].classList.add('wrong');
         fb2.textContent = good2 ? L('Yes', 'सही') : L('It was here', 'यहाँ था'); fb2.className = 'fb '+(good2?'good':'bad');
-        await ctx.wait(good2 ? 900 : 1900);
+        await ctx.wait(good2 ? 900 : 1900); await ctx.refocus(good2);
       }
       imm = ok2/order2.length; score = level*imm;
     } else {
@@ -1881,9 +1928,9 @@ async function m6name(root, ctx, mode, how){
         });
         clear(ctl); clear(extra);
       }
-      if (outcome === 'ok'){ if (stage === 0) first++; else cued++; fb.textContent = L('Yes: ', 'हाँ: ')+it.disp; fb.className = 'fb good'; done = true; ctx.say(L('Yes. ', 'हाँ, ')+it.disp); await ctx.wait(1300); }
+      if (outcome === 'ok'){ if (stage === 0) first++; else cued++; fb.textContent = L('Yes: ', 'हाँ: ')+it.disp; fb.className = 'fb good'; done = true; ctx.say(L('Yes. ', 'हाँ, ')+it.disp); await ctx.wait(1300); await ctx.refocus(true); }
       else if (stage === 0 && outcome === 'wrong'){ stage = 1; fb.textContent = hintOf(it); fb.className = 'fb bad'; await ctx.say(hintOf(it)); }
-      else { failed++; fb.textContent = L('It was: ', 'उत्तर था: ')+it.disp; fb.className = 'fb bad'; done = true; ctx.say(L('It was ', 'उत्तर था ')+it.disp); await ctx.wait(1900); }
+      else { failed++; fb.textContent = L('It was: ', 'उत्तर था: ')+it.disp; fb.className = 'fb bad'; done = true; ctx.say(L('It was ', 'उत्तर था ')+it.disp); await ctx.wait(1900); await ctx.refocus(false); }
     }
   }
   setProg(p, 1);
@@ -2047,7 +2094,7 @@ async function m8money(root, ctx){
     }
     if (good) ok++;
     fb.className = 'fb '+(good ? 'good' : 'bad'); ctx.say(fb.textContent);
-    clear(box); await ctx.wait(good ? 1300 : 2600);
+    clear(box); await ctx.wait(good ? 1300 : 2600); await ctx.refocus(good);
   }
   var v = Math.round(ok/types.length*100);
   return { m:{v:v}, headline:'Money tasks correct: '+ok+' of '+types.length, detail:'correct '+ok+'/'+types.length,
@@ -2077,7 +2124,7 @@ async function m8cal(root, ctx){
       else { var dd = [e.d]; while (dd.length < 4){ var y = e.d + pick([-5,-3,-2,2,3,5]); if (y > 10 && y < 31 && dd.indexOf(y) < 0) dd.push(y); } opts = shuffle(dd); var a2 = await ctx.ask(box, opts.map(function(d){ return L(d+'th', d+' तारीख़'); })); var good = opts[a2.i] === e.d; }
       tot++; if (good) ok++;
       fb.textContent = good ? L('Correct', 'सही') : L('It was ', 'सही उत्तर: ')+(e.t === 'day' ? nm(DAYS[e.d]) : L(e.d+'th', e.d+' तारीख़')); fb.className = 'fb '+(good ? 'good' : 'bad');
-      await ctx.wait(good ? 900 : 2000);
+      await ctx.wait(good ? 900 : 2000); await ctx.refocus(good);
     }
   }
   var v = Math.round(ok/tot*100);
@@ -2365,7 +2412,7 @@ var GAMES = {
     intro:'Learn something, take a short break, then recall it. The point is to use a strategy: make a picture in your mind that links things together.',
     tips:['Picture it: see the person at work, the object in its spot.','Say it in a short sentence.','Group things: rows, counters, categories.'],
     modes:[['names','Names and jobs','Meet new people and remember their work'],['places','Things in places','Remember where objects were left'],['shop','Shopping list','Remember a list, then pick it out']]},
-  m3:{id:'M3', name:'Sequence Keeper', trains:'Working memory', mins:'5–8 min', play:m3,
+  m3:{id:'M3', name:'Sequence Keeper', trains:'Working memory', mins:'8–10 min', play:m3,
     intro:'Hold a short sequence in mind and give it back. The sequence grows by one each time you get it right.',
     tips:['Say the sequence quietly to yourself.','Group numbers in twos or threes, like a phone number.','For squares, trace the path with your eyes.'],
     modes:[['tiles','Tile sequence','Squares light up; tap them in order'],['digits','Number sequence','Remember numbers in order'],['back','Backwards numbers','Give the numbers in reverse'],['nback','Same as before?','Spot when a picture repeats']]},
@@ -2682,7 +2729,7 @@ function showInstructions(k, mode){
   say(txt);
 }
 function startGame(k, mode, practice){
-  page('play'); var tok = run, g = GAMES[k];
+  page('play'); CUR_GAME = k; var tok = run, g = GAMES[k];
   app.appendChild(gameHead(k));
   var root = setVars(h('div', {class:'panel'}), k); app.appendChild(root);
   root.appendChild(h('p', {class:'tag2', text:mode[1]+(practice ? ' · practice' : '')}));
@@ -3067,7 +3114,8 @@ function route(){
 
 
 /* ===== clinic plans: patient keys, domain priorities, task of the day, daily minutes ===== */
-KEYS.plan = 'bts2-plan'; KEYS.mins = 'bts2-mins';
+KEYS.plan = 'bts2-plan'; KEYS.mins = 'bts2-mins'; KEYS.gmins = 'bts2-gmins';
+var TASK_MIN = 8, CUR_GAME = null;
 
 /* cognitive domains used for prioritising games */
 var DOMS = [
@@ -3166,7 +3214,10 @@ function taskFor(ms){
   return prev;
 }
 function todayTask(){ return taskFor(Date.now()); }
-function taskDone(hist, k, day){ return hist.some(function(r){ return r.key === k && r.date === day && !r.practice; }); }
+function taskSessions(hist, k, day){ return hist.filter(function(r){ return r.key === k && r.date === day && !r.practice; }).length; }
+function taskMins(k, day){ var g = lsGet(KEYS.gmins, {}); return Math.floor(((g[day] || {})[k] || 0)/60); }
+/* the must-do is done after at least one full session AND about 8 minutes spent in that game today */
+function taskDone(hist, k, day){ return taskSessions(hist, k, day) > 0 && taskMins(k, day) >= TASK_MIN; }
 
 /* ===== active minutes: counted only while a game or Daily Anchors is on screen ===== */
 var ACTIVE_VIEWS = {play:1, m7:1};
@@ -3180,6 +3231,8 @@ function minsOn(day){ return Math.floor((loadMins()[day] || 0)/60); }
     var m = loadMins(), d = isoDay(now); m[d] = (m[d] || 0) + gap/1000;
     var keys = Object.keys(m).sort(); while (keys.length > 60) delete m[keys.shift()];
     lsSet(KEYS.mins, m);
+    if (CUR_GAME && currentView === 'play'){ var g = lsGet(KEYS.gmins, {}); g[d] = g[d] || {}; g[d][CUR_GAME] = (g[d][CUR_GAME] || 0) + gap/1000;
+      var gk = Object.keys(g).sort(); while (gk.length > 14) delete g[gk.shift()]; lsSet(KEYS.gmins, g); }
     if (Math.floor(m[d]/60) !== Math.floor((m[d] - gap/1000)/60)) syncPlayer();
   }, 5000);
 })();
@@ -3192,16 +3245,20 @@ function ringSvg(frac){
 }
 function todayPanel(hist){
   var plan = loadPlan(), day = isoDay(Date.now()), k = todayTask(), done = taskDone(hist, k, day), mins = minsOn(day), target = planTarget();
+  var tSess = taskSessions(hist, k, day), tMin = Math.min(taskMins(k, day), TASK_MIN);
   var g = GAMES[k];
   var ring = h('div', {class:'ringbox'}, [h('span', {html:ringSvg(mins/target)}), h('div', {class:'ringtxt'}, [h('b', {text:String(Math.min(mins, 999))}), h('span', {text:L('of '+target+' min','/ '+target+' मिनट')})])]);
   var ringMsg = mins >= target ? L('Daily goal reached. Well done!','आज का लक्ष्य पूरा। शाबाश!') : L((target - mins)+' more minutes today', 'आज '+(target - mins)+' मिनट और');
   var tcard = setVars(h('div', {class:'taskcard'+(done ? ' done' : '')}), k);
-  var btn = h('button', {type:'button', text: done ? L('Play it again','फिर से खेलें') : L('Start today’s task →','आज का काम शुरू करें →')});
+  var more = !done && tSess > 0;
+  var btn = h('button', {type:'button', text: done ? L('Play it again','फिर से खेलें') : more ? L('Play another round →','एक और राउंड खेलें →') : L('Start today’s task →','आज का काम शुरू करें →')});
   btn.addEventListener('click', function(){ openGame(k); });
   tcard.append(h('span', {class:'tico', html:ICON[k]}), h('div', {class:'tbody'}, [
     h('span', {class:'eyebrow', text: L('Today’s must-do task','आज का ज़रूरी काम')}),
-    h('h3', {text: trWord(g.name)}), h('p', {class:'muted', text: tr(g.trains)+' · '+g.mins}),
-    done ? h('p', {class:'okline', text:L('✓ Done for today','✓ आज का पूरा हुआ')}) : null, btn]));
+    h('h3', {text: trWord(g.name)}), h('p', {class:'muted', text: tr(g.trains)+' · '+L('about '+TASK_MIN+' minutes','लगभग '+TASK_MIN+' मिनट')}),
+    h('div', {class:'tbar', 'aria-hidden':'true'}, [h('em', {style:{width: Math.round(tMin/TASK_MIN*100)+'%'}})]),
+    h('p', {class: done ? 'okline' : 'muted', text: done ? L('✓ Done for today','✓ आज का पूरा हुआ') : L(tMin+' of '+TASK_MIN+' minutes done', TASK_MIN+' में से '+tMin+' मिनट पूरे')}),
+    more ? h('p', {text:L('Good start! Play one more round of this game (any way to play) to finish today’s task.','अच्छी शुरुआत! आज का काम पूरा करने के लिए इसी खेल का एक और राउंड खेलें (कोई भी तरीक़ा)।')}) : null, btn]));
   var p = h('div', {class:'panel todaybox'}, [
     h('div', {class:'ringcol'}, [ring, h('p', {class:'ringmsg', text: ringMsg})]), tcard]);
   var foot = h('div', {class:'todayfoot'});
